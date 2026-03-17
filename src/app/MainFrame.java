@@ -1,6 +1,8 @@
 package app;
 
-import app.drawing.DrawingTab;
+import app.controller.DrawingController;
+import app.model.DrawingModel;
+import app.view.DrawingView;
 import app.sort.SortTab;
 import app.stack.Stack;
 import app.stack.StackTab;
@@ -17,13 +19,16 @@ public class MainFrame extends JFrame {
         setSize(1000, 650);
         setLocationRelativeTo(null);
 
-        // shared list — both tabs operate on the same stack
         Stack sharedStack = new Stack();
+
+        DrawingModel model = new DrawingModel();
+        DrawingView drawingView = new DrawingView();
+        new DrawingController(model, drawingView); // wires everything together
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Stack",   new StackTab(sharedStack));
         tabs.addTab("Sort",    new SortTab(sharedStack));
-        tabs.addTab("Drawing", new DrawingTab());
+        tabs.addTab("Drawing", drawingView);
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
