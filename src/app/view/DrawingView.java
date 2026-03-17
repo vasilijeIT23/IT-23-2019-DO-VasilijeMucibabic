@@ -1,22 +1,28 @@
-package app.drawing;
+package app.view;
 
+import app.controller.DrawingController;
 import app.drawing.enums.Modes;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class DrawingTab extends JPanel {
+public class DrawingView extends JPanel {
+    private DrawingController controller;
+    private final PnlDrawing canvas;
 
+    public void setController(DrawingController controller) {
+        this.controller = controller;
+        canvas.setController(controller); // propagate to canvas
+    }
     private final JLabel lblStatus = new JLabel(" ");
 
-    public DrawingTab() {
+    public DrawingView() {
+        canvas = new PnlDrawing();
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        PnlDrawing drawing = new PnlDrawing();
-        add(drawing, BorderLayout.CENTER);
+        add(canvas, BorderLayout.CENTER);
 
-        // ===== Toolbar =====
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
 
@@ -39,59 +45,15 @@ public class DrawingTab extends JPanel {
         group.add(btnDelete);
         group.add(btnSelect);
 
-        drawing.setMode(Modes.POINT);
+        btnPoint.addActionListener(e  -> controller.onActionSelected(Modes.POINT));
+        btnLine.addActionListener(e  -> controller.onActionSelected(Modes.LINE));
+        btnRectangle.addActionListener(e  -> controller.onActionSelected(Modes.RECTANGLE));
+        btnCircle.addActionListener(e  -> controller.onActionSelected(Modes.CIRCLE));
+        btnDonut.addActionListener(e  -> controller.onActionSelected(Modes.DONUT));
 
-        btnPoint.addActionListener(e -> {
-            drawing.setMode(Modes.POINT);
-            setStatus("Tool: POINT | Click to place a point.");
-        });
-
-        btnLine.addActionListener(e -> {
-            drawing.setMode(Modes.LINE);
-            setStatus("Tool: LINE | Click start, then click end.");
-        });
-
-        btnRectangle.addActionListener(e -> {
-            drawing.setMode(Modes.RECTANGLE);
-            setStatus("Tool: RECTANGLE | Click upper left point of the rectangle.");
-        });
-
-        btnCircle.addActionListener( e -> {
-            drawing.setMode(Modes.CIRCLE);
-            setStatus("Tool: CIRCLE | Point click the center of the circle");
-        });
-
-        btnDonut.addActionListener( e -> {
-            drawing.setMode(Modes.DONUT);
-            setStatus("Tool: DONUT | Point click the center of the donut");
-        });
-
-        btnModify.addActionListener( e -> {
-            drawing.setMode(Modes.MODIFY);
-            setStatus("Tool: DONUT | Point click the center of the donut");
-        });
-        btnDelete.addActionListener( e -> {
-            drawing.setMode(Modes.DELETE);
-            setStatus("Tool: DONUT | Point click the center of the donut");
-        });
-        btnSelect.addActionListener( e -> {
-            drawing.setMode(Modes.SELECT);
-            setStatus("Tool: DONUT | Point click the center of the donut");
-        });
-
-
-
-//        JButton btnUndo = new JButton("Undo");
-//        btnUndo.addActionListener(e -> {
-//            drawing.undo();
-//            setStatus("Undo.");
-//        });
-//
-//        JButton btnClear = new JButton("Clear");
-//        btnClear.addActionListener(e -> {
-//            drawing.clearAll();
-//            setStatus("Canvas cleared.");
-//        });
+        btnSelect.addActionListener(e  -> controller.onActionSelected(Modes.SELECT));
+        btnModify.addActionListener(e  -> controller.onActionSelected(Modes.MODIFY));
+        btnDelete.addActionListener(e  -> controller.onActionSelected(Modes.DELETE));
 
         toolBar.add(new JLabel("Tool: "));
         toolBar.add(btnPoint);
@@ -109,12 +71,9 @@ public class DrawingTab extends JPanel {
         toolBar.add(btnDelete);
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnSelect);
-//        toolBar.add(btnUndo);
-//        toolBar.add(btnClear);
 
         add(toolBar, BorderLayout.NORTH);
 
-        // ===== Status bar =====
         JPanel statusBar = new JPanel(new BorderLayout());
         statusBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 220, 220)),
@@ -126,7 +85,8 @@ public class DrawingTab extends JPanel {
         add(statusBar, BorderLayout.SOUTH);
     }
 
-    private void setStatus(String text) {
+    public void setStatus(String text) {
         lblStatus.setText(text);
     }
+
 }
