@@ -1,4 +1,4 @@
-package app.drawing.dialogs;
+package app.drawing.components;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +20,7 @@ public class DlgColorPicker extends JButton {
             if (chosen != null) {
                 Color old = this.color;
                 this.color = chosen;
-                firePropertyChange("color", old, chosen); // ✅ notify listeners
+                firePropertyChange("color", old, chosen);
             }
         });
     }

@@ -1,7 +1,5 @@
 package app.drawing.components;
 
-import app.drawing.dialogs.DlgColorPicker;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -18,7 +16,6 @@ public class ColorPickerRow extends JPanel {
 
         button = new DlgColorPicker(buttonText, initial != null ? initial : Color.BLACK);
 
-        // initial + live update
         block.setBackground(button.getColor());
         button.addPropertyChangeListener("color", evt ->
                 block.setBackground((Color) evt.getNewValue())
@@ -33,6 +30,6 @@ public class ColorPickerRow extends JPanel {
     }
 
     public void setColor(Color c) {
-        button.setColor(c); // assumes your DlgColorPicker has setColor + fires property change
+        button.setColor(c);
     }
 }

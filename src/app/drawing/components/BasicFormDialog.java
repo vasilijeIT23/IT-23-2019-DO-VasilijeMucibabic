@@ -23,18 +23,18 @@ public class BasicFormDialog {
         java.util.Map<String, JComponent> inputs = new java.util.HashMap<>();
 
         for (FieldSpecs s : specs) {
-            panel.add(new JLabel(s.label));
+            panel.add(new JLabel(s.label()));
 
             JComponent input;
-            if (s.type == FieldTypes.INT) {
-                String def = s.defaultValue.toString();
+            if (s.type() == FieldTypes.INT) {
+                String def = s.defaultValue().toString();
                 input = new JTextField(def, 8);
             } else {
-                Color col = (Color) s.defaultValue;
+                Color col = (Color) s.defaultValue();
                 input = new ColorPickerRow("Choose color", col);
             }
 
-            inputs.put(s.key, input);
+            inputs.put(s.key(), input);
             panel.add(input);
         }
 
@@ -51,29 +51,16 @@ public class BasicFormDialog {
 
             try {
                 for (FieldSpecs s : specs) {
-                    JComponent c = inputs.get(s.key);
+                    JComponent c = inputs.get(s.key());
 
-                    if (s.type == FieldTypes.INT) {
-                        String text = ((JTextField) c).getText().trim();
+                    if (s.type() == FieldTypes.INT) {
+                        int v = getV(s, (JTextField) c);
 
-                        if (text.isEmpty() && s.required)
-                            throw new IllegalArgumentException(s.label + " is required.");
-
-                        int v = Integer.parseInt(text);
-
-                        if (s.min != null && v < s.min)
-                            throw new IllegalArgumentException(
-                                    s.label + " must be ≥ " + s.min);
-
-                        if (s.max != null && v > s.max)
-                            throw new IllegalArgumentException(
-                                    s.label + " must be ≤ " + s.max);
-
-                        values.put(s.key, v);
+                        values.put(s.key(), v);
 
                     } else { // COLOR
                         Color col = ((ColorPickerRow) c).getColor();
-                        values.put(s.key, col);
+                        values.put(s.key(), col);
                     }
                 }
 
@@ -87,5 +74,23 @@ public class BasicFormDialog {
                 );
             }
         }
+    }
+
+    private static int getV(FieldSpecs s, JTextField c) {
+        String text = c.getText().trim();
+
+        if (text.isEmpty() && s.required())
+            throw new IllegalArgumentException(s.label() + " is required.");
+
+        int v = Integer.parseInt(text);
+
+        if (s.min() != null && v < s.min())
+            throw new IllegalArgumentException(
+                    s.label() + " must be ≥ " + s.min());
+
+        if (s.max() != null && v > s.max())
+            throw new IllegalArgumentException(
+                    s.label() + " must be ≤ " + s.max());
+        return v;
     }
 }
