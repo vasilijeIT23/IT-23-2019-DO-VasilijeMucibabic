@@ -126,4 +126,27 @@ public final class FormLibrary {
                 }
         );
     }
+
+    public static final FormSpecs CREATE_HEXAGON_FIELDS = new FormSpecs(
+            "Hexagon properties",
+            List.of(
+                    new FieldSpecs("radius", "Radius:", FieldTypes.INT, 50, 1, 2000, true),
+                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, NO_COLOR, null, null, false),
+                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, NO_COLOR, null, null, false)
+            )
+    );
+
+    public static FormSpecs modifyHexagonFields(app.geometry.HexagonAdapter h) {
+        return new FormSpecs(
+                "Rectangle properties",
+                List.of(
+                        new FieldSpecs("x", "X Axis:", FieldTypes.INT, h.getX(), 1, 2000, true),
+                        new FieldSpecs("y", "Y Axis:", FieldTypes.INT, h.getY(), 1, 2000, true),
+                        new FieldSpecs("radius", "Radius:", FieldTypes.INT, h.getRadius(), 1, 2000, true),
+                        new FieldSpecs("border", "Border color", FieldTypes.COLOR, h.getColor(), null, null, false),
+                        new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, h.getInnerColor(), null, null, false)
+                )
+        );
+    }
 }
+

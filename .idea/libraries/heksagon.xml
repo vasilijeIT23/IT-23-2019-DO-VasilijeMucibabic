@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="heksagon">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/app/geometry/heksagon.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

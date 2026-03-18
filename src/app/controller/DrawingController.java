@@ -2,9 +2,7 @@ package app.controller;
 
 import app.drawing.components.BasicFormDialog;
 import app.drawing.enums.Modes;
-import app.geometry.Circle;
-import app.geometry.Donut;
-import app.geometry.Line;
+import app.geometry.*;
 import app.geometry.Point;
 import app.geometry.Shape;
 import app.model.DrawingModel;
@@ -127,6 +125,19 @@ public class DrawingController {
                 model.addShape(new app.geometry.Rectangle(new Point(x, y), height, width, border, fill));
                 view.repaint();
             }
+            else if (selected instanceof app.geometry.HexagonAdapter h) {
+                var params = BasicFormDialog.ask(getWindow(), modifyHexagonFields(h));
+                if (params == null) return;
+
+                int x = (Integer) params.get("x");
+                int y = (Integer) params.get("y");
+                int radius = (Integer) params.get("radius");
+                Color border = (Color) params.get("border");
+                Color fill   = (Color) params.get("fill");
+                model.removeShape(selected);
+                model.addShape(new HexagonAdapter(x, y, radius, border, fill));
+                view.repaint();
+            }
             else if (selected instanceof Circle c) {
                 if (selected instanceof Donut d){
                     var params = BasicFormDialog.ask(getWindow(), modifyDonutFields(d));
@@ -214,7 +225,7 @@ public class DrawingController {
 
             int radius = (Integer) params.get("radius");
             Color border = (Color) params.get("border");
-            Color fill   = (Color) params.get("fill");
+            Color fill = (Color) params.get("fill");
             model.addShape(new Circle(new app.geometry.Point(e.getX(), e.getY()), radius, border, fill));
             view.repaint();
         }
@@ -231,6 +242,20 @@ public class DrawingController {
             Color border = (Color) params.get("border");
             Color fill   = (Color) params.get("fill");
             model.addShape(new Donut(new app.geometry.Point(e.getX(), e.getY()), outer, inner, border, fill));
+            view.repaint();
+        }
+
+        if (mode == Modes.HEXAGON) {
+            var params = BasicFormDialog.ask(
+                    SwingUtilities.getWindowAncestor(e.getComponent()),
+                    CREATE_HEXAGON_FIELDS
+            );
+            if (params == null) return;
+
+            int radius = (Integer) params.get("radius");
+            Color border = (Color) params.get("border");
+            Color fill   = (Color) params.get("fill");
+            model.addShape(new HexagonAdapter(e.getX(), e.getY(), radius, border, fill));
             view.repaint();
         }
 

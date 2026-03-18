@@ -31,6 +31,7 @@ public class DrawingView extends JPanel {
         JToggleButton btnRectangle = new JToggleButton("Rectangle");
         JToggleButton btnCircle = new JToggleButton("Circle");
         JToggleButton btnDonut = new JToggleButton("Donut");
+        JToggleButton btnHexagon = new JToggleButton("Hexagon");
         JToggleButton btnModify = new JToggleButton("Modify");
         JToggleButton btnDelete = new JToggleButton("Delete");
         JToggleButton btnSelect = new JToggleButton("Select");
@@ -41,6 +42,7 @@ public class DrawingView extends JPanel {
         group.add(btnRectangle);
         group.add(btnCircle);
         group.add(btnDonut);
+        group.add(btnHexagon);
         group.add(btnModify);
         group.add(btnDelete);
         group.add(btnSelect);
@@ -50,6 +52,7 @@ public class DrawingView extends JPanel {
         btnRectangle.addActionListener(e  -> controller.onActionSelected(Modes.RECTANGLE));
         btnCircle.addActionListener(e  -> controller.onActionSelected(Modes.CIRCLE));
         btnDonut.addActionListener(e  -> controller.onActionSelected(Modes.DONUT));
+        btnHexagon.addActionListener(e  -> controller.onActionSelected(Modes.HEXAGON));
 
         btnSelect.addActionListener(e  -> controller.onActionSelected(Modes.SELECT));
         btnModify.addActionListener(e  -> controller.onActionSelected(Modes.MODIFY));
@@ -65,6 +68,8 @@ public class DrawingView extends JPanel {
         toolBar.add(btnCircle);
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnDonut);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnHexagon);
         toolBar.addSeparator(new Dimension(54, 0));
         toolBar.add(btnModify);
         toolBar.addSeparator(new Dimension(18, 0));
