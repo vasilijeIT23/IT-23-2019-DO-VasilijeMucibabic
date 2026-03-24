@@ -28,5 +28,5 @@ public abstract class Shape {
 
     public abstract void drawSelected(Graphics2D g);
 
-
+    public abstract Shape copy();
 }

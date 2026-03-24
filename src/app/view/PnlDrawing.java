@@ -42,7 +42,7 @@ public class PnlDrawing extends JPanel {
         try {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            for (Shape s : controller.getShapes()) {
+            for (Shape s : controller.getShapesCopy()) {
                 if (s instanceof SurfaceShape ss) {
                     ss.fill(g2);
                     ss.draw(g2);

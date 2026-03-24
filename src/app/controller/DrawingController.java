@@ -1,9 +1,14 @@
 package app.controller;
 
+import app.command.AddShapeCommand;
+import app.command.Command;
+import app.command.ModifyShapeCommand;
+import app.command.RemoveShapeCommand;
 import app.drawing.components.BasicFormDialog;
 import app.drawing.enums.Modes;
 import app.geometry.*;
 import app.geometry.Point;
+import app.geometry.Rectangle;
 import app.geometry.Shape;
 import app.model.DrawingModel;
 import app.view.DrawingView;
@@ -21,7 +26,6 @@ public class DrawingController {
     public List<Shape> getShapes() {
         return model.getShapes();
     }
-
     private final DrawingModel model;
     private final DrawingView view;
 
@@ -29,6 +33,10 @@ public class DrawingController {
         this.model = model;
         this.view = view;
         view.setController(this);
+    }
+
+    public List<Shape> getShapesCopy() {
+        return model.getShapesCopy();
     }
 
     private Window getWindow() {
@@ -87,15 +95,16 @@ public class DrawingController {
                 return;
             }
 
-            if (selected instanceof app.geometry.Point p) {
+            if (selected instanceof Point p) {
                 var params = BasicFormDialog.ask(getWindow(), modifyPointFields(p));
                 if (params == null) return;
 
                 int x = (Integer) params.get("x");
                 int y = (Integer) params.get("y");
                 Color border = (Color) params.get("border");
-                model.removeShape(selected);
-                model.addShape(new app.geometry.Point(x, y, border));
+
+                Shape modified = new Point(x, y, border);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                 view.repaint();
             }
             else if (selected instanceof Line l) {
@@ -107,11 +116,12 @@ public class DrawingController {
                 int x2 = (Integer) params.get("x2");
                 int y2 = (Integer) params.get("y2");
                 Color border = (Color) params.get("border");
-                model.removeShape(selected);
-                model.addShape(new Line(new app.geometry.Point(x, y), new app.geometry.Point(x2, y2), border));
+
+                Shape modified = new Line(new Point(x, y), new Point(x2, y2), border);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                 view.repaint();
             }
-            else if (selected instanceof app.geometry.Rectangle r) {
+            else if (selected instanceof Rectangle r) {
                 var params = BasicFormDialog.ask(getWindow(), modifyRectangleFields(r));
                 if (params == null) return;
 
@@ -121,11 +131,12 @@ public class DrawingController {
                 int height = (Integer) params.get("height");
                 Color border = (Color) params.get("border");
                 Color fill   = (Color) params.get("fill");
-                model.removeShape(selected);
-                model.addShape(new app.geometry.Rectangle(new Point(x, y), height, width, border, fill));
+
+                Shape modified = new Rectangle(new Point(x, y), height, width, border, fill);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                 view.repaint();
             }
-            else if (selected instanceof app.geometry.HexagonAdapter h) {
+            else if (selected instanceof HexagonAdapter h) {
                 var params = BasicFormDialog.ask(getWindow(), modifyHexagonFields(h));
                 if (params == null) return;
 
@@ -134,8 +145,9 @@ public class DrawingController {
                 int radius = (Integer) params.get("radius");
                 Color border = (Color) params.get("border");
                 Color fill   = (Color) params.get("fill");
-                model.removeShape(selected);
-                model.addShape(new HexagonAdapter(x, y, radius, border, fill));
+
+                Shape modified = new HexagonAdapter(x, y, radius, border, fill);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                 view.repaint();
             }
             else if (selected instanceof Circle c) {
@@ -149,8 +161,9 @@ public class DrawingController {
                     int outer = (Integer) params.get("outer");
                     Color border = (Color) params.get("border");
                     Color fill   = (Color) params.get("fill");
-                    model.removeShape(selected);
-                    model.addShape(new Donut(new app.geometry.Point(x, y), outer, inner, border, fill));
+
+                    Shape modified = new Donut(new Point(x, y), outer, inner, border, fill);
+                    model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                     view.repaint();
                 }
                 else {
@@ -162,8 +175,9 @@ public class DrawingController {
                     int radius = (Integer) params.get("radius");
                     Color border = (Color) params.get("border");
                     Color fill   = (Color) params.get("fill");
-                    model.removeShape(selected);
-                    model.addShape(new Circle(new app.geometry.Point(x, y), radius, border, fill));
+
+                    Shape modified = new Circle(new Point(x, y), radius, border, fill);
+                    model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified));
                     view.repaint();
                 }
             }
@@ -172,91 +186,69 @@ public class DrawingController {
     }
 
     public void handleClick(MouseEvent e) {
+        Command command;
+        Shape shape = null;
         if (mode == Modes.POINT) {
-            var params = BasicFormDialog.ask(
-                    SwingUtilities.getWindowAncestor(e.getComponent()),
-                    CREATE_POINT_FIELDS
-            );
+            var params = BasicFormDialog.ask(getWindow(), CREATE_POINT_FIELDS);
             if (params == null) return;
-            Color pointColor   = (Color) params.get("border");
-            model.addShape(new app.geometry.Point(e.getX(), e.getY(), pointColor));
-            view.repaint();
-            return;
+
+            Color pointColor = (Color) params.get("border");
+            shape = new Point(e.getX(), e.getY(), pointColor);
         }
 
         if (mode == Modes.LINE) {
             if (pendingShapeStart == null) {
-                pendingShapeStart = new app.geometry.Point(e.getX(), e.getY());
+                pendingShapeStart = new Point(e.getX(), e.getY());
                 view.repaint();
             } else {
-                var params = BasicFormDialog.ask(
-                        SwingUtilities.getWindowAncestor(e.getComponent()),
-                        CREATE_LINE_FIELDS
-                );
+                var params = BasicFormDialog.ask(getWindow(), CREATE_LINE_FIELDS);
                 if (params == null) return;
                 Color lineColor   = (Color) params.get("border");
-                model.addShape(new Line(pendingShapeStart, new app.geometry.Point(e.getX(), e.getY()), lineColor));
+                shape = new Line(pendingShapeStart, new Point(e.getX(), e.getY()), lineColor);
                 pendingShapeStart = null;
-                view.repaint();
             }
         }
 
         if (mode == Modes.RECTANGLE) {
-            var params = BasicFormDialog.ask(
-                    SwingUtilities.getWindowAncestor(e.getComponent()),
-                    CREATE_RECTANGLE_FIELDS
-            );
+            var params = BasicFormDialog.ask(getWindow(), CREATE_RECTANGLE_FIELDS);
             if (params == null) return;
 
             int width = (Integer) params.get("width");
             int height = (Integer) params.get("height");
             Color border = (Color) params.get("border");
             Color fill   = (Color) params.get("fill");
-            model.addShape(new app.geometry.Rectangle(new app.geometry.Point(e.getX(), e.getY()), height, width, border, fill));
-            view.repaint();
+            shape = new Rectangle(new Point(e.getX(), e.getY()), height, width, border, fill);
         }
 
         if (mode == Modes.CIRCLE) {
-            var params = BasicFormDialog.ask(
-                    SwingUtilities.getWindowAncestor(e.getComponent()),
-                    CREATE_CIRCLE_FIELDS
-            );
+            var params = BasicFormDialog.ask(getWindow(), CREATE_CIRCLE_FIELDS);
             if (params == null) return;
 
             int radius = (Integer) params.get("radius");
             Color border = (Color) params.get("border");
             Color fill = (Color) params.get("fill");
-            model.addShape(new Circle(new app.geometry.Point(e.getX(), e.getY()), radius, border, fill));
-            view.repaint();
+            shape = new Circle(new Point(e.getX(), e.getY()), radius, border, fill);
         }
 
         if (mode == Modes.DONUT) {
-            var params = BasicFormDialog.ask(
-                    SwingUtilities.getWindowAncestor(e.getComponent()),
-                    CREATE_DONUT_FIELDS
-            );
+            var params = BasicFormDialog.ask(getWindow(), CREATE_DONUT_FIELDS);
             if (params == null) return;
 
             int inner = (Integer) params.get("inner");
             int outer = (Integer) params.get("outer");
             Color border = (Color) params.get("border");
-            Color fill   = (Color) params.get("fill");
-            model.addShape(new Donut(new app.geometry.Point(e.getX(), e.getY()), outer, inner, border, fill));
-            view.repaint();
+            Color fill = (Color) params.get("fill");
+            shape = new Donut(new Point(e.getX(), e.getY()), outer, inner, border, fill);
         }
 
         if (mode == Modes.HEXAGON) {
-            var params = BasicFormDialog.ask(
-                    SwingUtilities.getWindowAncestor(e.getComponent()),
-                    CREATE_HEXAGON_FIELDS
-            );
+            var params = BasicFormDialog.ask(getWindow(), CREATE_HEXAGON_FIELDS);
             if (params == null) return;
 
             int radius = (Integer) params.get("radius");
             Color border = (Color) params.get("border");
             Color fill   = (Color) params.get("fill");
-            model.addShape(new HexagonAdapter(e.getX(), e.getY(), radius, border, fill));
-            view.repaint();
+            shape = new HexagonAdapter(e.getX(), e.getY(), radius, border, fill);
         }
 
         if (mode == Modes.SELECT) {
@@ -264,19 +256,20 @@ public class DrawingController {
             model.getShapes().forEach(s -> s.setSelected(false));
 
             for (int i = model.getSize() - 1; i >= 0; i--) {
-                app.geometry.Shape s = model.getShape(i);
-                if (s.contains(new app.geometry.Point(e.getX(), e.getY()))) {
+                Shape s = model.getShape(i);
+                if (s.contains(new Point(e.getX(), e.getY()))) {
                     s.setSelected(true);
                     break;
                 }
             }
             view.repaint();
+            return;
         }
         if (mode == Modes.DELETE) {
             Shape selected = null;
 
             for (int i = model.getSize() - 1; i >= 0; i--) {
-                app.geometry.Shape s = model.getShape(i);
+                Shape s = model.getShape(i);
 
                 if (s.contains(new Point(e.getX(), e.getY())) && s.isSelected()) {
                     selected = s;
@@ -292,10 +285,36 @@ public class DrawingController {
                 );
                 return;
             }
-
-            model.removeShape(selected);
+            command = new RemoveShapeCommand(getShapes(), selected);
+            model.addCommand(command);
+            model.executeCommand(command);
             view.repaint();
+            return;
         }
+        command = new AddShapeCommand(getShapes(), shape);
+        model.addCommand(command);
+        model.executeCommand(command);
+        view.repaint();
+        view.refreshButtons();
     }
 
+    public void undo() {
+        model.undo();
+        view.repaint();
+        view.refreshButtons();
+    }
+
+    public void redo() {
+        model.redo();
+        view.repaint();
+        view.refreshButtons();
+    }
+
+    public boolean canUndo() {
+        return model.canUndo();
+    }
+
+    public boolean canRedo() {
+        return model.canRedo();
+    }
 }

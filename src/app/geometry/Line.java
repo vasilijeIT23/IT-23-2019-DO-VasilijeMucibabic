@@ -48,4 +48,9 @@ public class Line extends Shape {
     public void drawSelected(Graphics2D g) {
         g.drawLine(getA().getX(), getA().getY(), getB().getX(), getB().getY());
     }
+
+    @Override
+    public Shape copy() {
+        return new Line(getA(), getB(), getColor());
+    }
 }

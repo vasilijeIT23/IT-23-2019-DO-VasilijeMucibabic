@@ -67,6 +67,15 @@ public class Circle extends SurfaceShape {
         g.drawOval(getCenter().getX() - r, getCenter().getY() - r, r * 2, r * 2);
     }
 
+    @Override
+    public Shape copy() {
+        return new Circle(
+                new Point(center.getX(), center.getY()),
+                radius,
+                getColor(),
+                getInnerColor()
+        );
+    }
 
     public Point getCenter() {
         return center;

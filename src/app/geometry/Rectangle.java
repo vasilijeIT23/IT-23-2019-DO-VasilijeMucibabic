@@ -60,4 +60,9 @@ public class Rectangle extends SurfaceShape{
         g.drawRect(getUpperLeftPoint().getX() - 4, getUpperLeftPoint().getY() - 4,
                 getWidth() + 8, getHeight() + 8);
     }
+
+    @Override
+    public Shape copy() {
+        return new Rectangle(getUpperLeftPoint(), getHeight(), getWidth(), getColor(), getInnerColor());
+    }
 }

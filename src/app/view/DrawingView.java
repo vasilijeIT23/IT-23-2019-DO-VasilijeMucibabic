@@ -10,6 +10,9 @@ public class DrawingView extends JPanel {
     private DrawingController controller;
     private final PnlDrawing canvas;
 
+    private final JButton btnUndo = new JButton("Undo");
+    private final JButton btnRedo = new JButton("Redo");
+
     public void setController(DrawingController controller) {
         this.controller = controller;
         canvas.setController(controller); // propagate to canvas
@@ -17,6 +20,7 @@ public class DrawingView extends JPanel {
     private final JLabel lblStatus = new JLabel(" ");
 
     public DrawingView() {
+
         canvas = new PnlDrawing();
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -58,6 +62,9 @@ public class DrawingView extends JPanel {
         btnModify.addActionListener(e  -> controller.onActionSelected(Modes.MODIFY));
         btnDelete.addActionListener(e  -> controller.onActionSelected(Modes.DELETE));
 
+        btnUndo.addActionListener(e -> controller.undo());
+        btnRedo.addActionListener(e -> controller.redo());
+
         toolBar.add(new JLabel("Tool: "));
         toolBar.add(btnPoint);
         toolBar.addSeparator(new Dimension(18, 0));
@@ -77,6 +84,14 @@ public class DrawingView extends JPanel {
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnSelect);
 
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnUndo);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnRedo);
+
+        btnUndo.setEnabled(false); // nothing to undo at start
+        btnRedo.setEnabled(false); // nothing to redo at start
+
         add(toolBar, BorderLayout.NORTH);
 
         JPanel statusBar = new JPanel(new BorderLayout());
@@ -88,10 +103,16 @@ public class DrawingView extends JPanel {
         statusBar.add(lblStatus, BorderLayout.WEST);
 
         add(statusBar, BorderLayout.SOUTH);
+
     }
 
     public void setStatus(String text) {
         lblStatus.setText(text);
+    }
+
+    public void refreshButtons() {
+        btnUndo.setEnabled(controller.canUndo());
+        btnRedo.setEnabled(controller.canRedo());
     }
 
 }

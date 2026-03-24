@@ -56,6 +56,11 @@ public class HexagonAdapter extends SurfaceShape {
         g.setStroke(prevStroke);
     }
 
+    @Override
+    public Shape copy() {
+        return null;
+    }
+
     public int getX()      { return hexagon.getX(); }
     public int getY()      { return hexagon.getY(); }
     public int getRadius() { return hexagon.getR(); }
