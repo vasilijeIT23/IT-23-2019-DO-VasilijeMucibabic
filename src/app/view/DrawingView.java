@@ -18,6 +18,7 @@ public class DrawingView extends JPanel {
         canvas.setController(controller); // propagate to canvas
     }
     private final JLabel lblStatus = new JLabel(" ");
+    private final LogPanel logPanel = new LogPanel();
 
     public DrawingView() {
 
@@ -25,7 +26,15 @@ public class DrawingView extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        add(canvas, BorderLayout.CENTER);
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                canvas,
+                logPanel
+        );
+
+        splitPane.setResizeWeight(0.8); // 80% canvas, 20% log
+        splitPane.setDividerSize(4);
+        add(splitPane, BorderLayout.CENTER);
 
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -89,8 +98,8 @@ public class DrawingView extends JPanel {
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnRedo);
 
-        btnUndo.setEnabled(false); // nothing to undo at start
-        btnRedo.setEnabled(false); // nothing to redo at start
+        btnUndo.setEnabled(false);
+        btnRedo.setEnabled(false);
 
         add(toolBar, BorderLayout.NORTH);
 
@@ -113,6 +122,16 @@ public class DrawingView extends JPanel {
     public void refreshButtons() {
         btnUndo.setEnabled(controller.canUndo());
         btnRedo.setEnabled(controller.canRedo());
+    }
+
+    public void refreshLog() {
+        logPanel.refresh(controller.getLog());
+    }
+
+    public void refresh() {
+        repaint();
+        refreshLog();
+        refreshButtons();
     }
 
 }

@@ -1,6 +1,8 @@
 package app.model;
 
 import app.command.Command;
+import app.command.RedoCommand;
+import app.command.UndoCommand;
 import app.geometry.Shape;
 
 import java.util.ArrayDeque;
@@ -17,13 +19,15 @@ public class DrawingModel {
     public void executeCommand(Command cmd) {
         cmd.execute();
         history.push(cmd);
+        allCommands.add(cmd);
     }
 
     public void undo() {
         if (!history.isEmpty()) {
             Command cmd = history.pop();
             cmd.undo();
-            redoStack.push(cmd); // ← this line is missing
+            redoStack.push(cmd);
+            allCommands.add(new UndoCommand(cmd));
         }
     }
 
@@ -31,7 +35,8 @@ public class DrawingModel {
         if (!redoStack.isEmpty()) {
             Command cmd = redoStack.pop();
             cmd.execute();
-            history.push(cmd); // back onto history
+            history.push(cmd);
+            allCommands.add(new RedoCommand(cmd));
         }
     }
 
@@ -51,4 +56,9 @@ public class DrawingModel {
     public void addCommand(Command c) {
         allCommands.add(c);
     }
+
+    public List<Command> getAllCommands() {
+        return allCommands;
+    }
+
 }
