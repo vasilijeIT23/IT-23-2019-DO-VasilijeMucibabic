@@ -1,8 +1,12 @@
 package app.geometry;
 
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class Rectangle extends SurfaceShape{
+public class Rectangle extends SurfaceShape implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 5L;
     private final Point upperLeftPoint;
 
     public int getWidth() {

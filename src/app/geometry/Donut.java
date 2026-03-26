@@ -3,10 +3,13 @@ package app.geometry;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.io.Serial;
+import java.io.Serializable;
 
 
-
-public class Donut extends Circle {
+public class Donut extends Circle implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7L;
 
     private final int innerRadius;
 

@@ -1,9 +1,13 @@
 package app.geometry;
 
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Line extends Shape {
+public class Line extends Shape implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4L;
     private final Point a;
     private final Point b;
 

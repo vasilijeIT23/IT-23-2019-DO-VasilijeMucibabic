@@ -110,88 +110,80 @@ public class DrawingController {
             if (selected instanceof Point p) {
                 var params = BasicFormDialog.ask(getWindow(), modifyPointFields(p));
                 if (params == null) return;
-
                 int x = (Integer) params.get("x");
                 int y = (Integer) params.get("y");
                 Color border = (Color) params.get("border");
-
                 Shape modified = new Point(x, y, border);
-                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Point to (" + x + ", " + y + ")"));
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Point to (" + x + ", " + y + ") color=" + colorToString(border)));
                 refresh();
             }
             else if (selected instanceof Line l) {
                 var params = BasicFormDialog.ask(getWindow(), modifyLineFields(l));
                 if (params == null) return;
-
-                int x = (Integer) params.get("x");
-                int y = (Integer) params.get("y");
+                int x  = (Integer) params.get("x");
+                int y  = (Integer) params.get("y");
                 int x2 = (Integer) params.get("x2");
                 int y2 = (Integer) params.get("y2");
                 Color border = (Color) params.get("border");
-
                 Shape modified = new Line(new Point(x, y), new Point(x2, y2), border);
-                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Line from (" + x + ", " + y + ") to (" + x2 + ", " + y2 + ")"));
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Line from (" + x + ", " + y + ") to (" + x2 + ", " + y2 + ") color=" + colorToString(border)));
                 refresh();
             }
             else if (selected instanceof Rectangle r) {
                 var params = BasicFormDialog.ask(getWindow(), modifyRectangleFields(r));
                 if (params == null) return;
-
-                int x = (Integer) params.get("x");
-                int y = (Integer) params.get("y");
-                int width = (Integer) params.get("width");
+                int x      = (Integer) params.get("x");
+                int y      = (Integer) params.get("y");
+                int width  = (Integer) params.get("width");
                 int height = (Integer) params.get("height");
                 Color border = (Color) params.get("border");
                 Color fill   = (Color) params.get("fill");
-
                 Shape modified = new Rectangle(new Point(x, y), height, width, border, fill);
-                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Rectangle at (" + x + ", " + y + ") w=" + width + " h=" + height));
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Rectangle at (" + x + ", " + y + ") w=" + width + " h=" + height + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
             else if (selected instanceof HexagonAdapter h) {
                 var params = BasicFormDialog.ask(getWindow(), modifyHexagonFields(h));
                 if (params == null) return;
-
-                int x = (Integer) params.get("x");
-                int y = (Integer) params.get("y");
+                int x      = (Integer) params.get("x");
+                int y      = (Integer) params.get("y");
                 int radius = (Integer) params.get("radius");
                 Color border = (Color) params.get("border");
                 Color fill   = (Color) params.get("fill");
-
                 Shape modified = new HexagonAdapter(x, y, radius, border, fill);
-                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Hexagon at (" + x + ", " + y + ") r=" + radius));
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Hexagon at (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                refresh();
+            }
+            else if (selected instanceof Donut d) {
+                var params = BasicFormDialog.ask(getWindow(), modifyDonutFields(d));
+                if (params == null) return;
+                int x     = (Integer) params.get("x");
+                int y     = (Integer) params.get("y");
+                int inner = (Integer) params.get("inner");
+                int outer = (Integer) params.get("outer");
+                Color border = (Color) params.get("border");
+                Color fill   = (Color) params.get("fill");
+                Shape modified = new Donut(new Point(x, y), outer, inner, border, fill);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Donut at (" + x + ", " + y + ") inner=" + inner + " outer=" + outer + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
             else if (selected instanceof Circle c) {
-                if (selected instanceof Donut d) {
-                    var params = BasicFormDialog.ask(getWindow(), modifyDonutFields(d));
-                    if (params == null) return;
-
-                    int x = (Integer) params.get("x");
-                    int y = (Integer) params.get("y");
-                    int inner = (Integer) params.get("inner");
-                    int outer = (Integer) params.get("outer");
-                    Color border = (Color) params.get("border");
-                    Color fill   = (Color) params.get("fill");
-
-                    Shape modified = new Donut(new Point(x, y), outer, inner, border, fill);
-                    model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Donut at (" + x + ", " + y + ") inner=" + inner + " outer=" + outer));
-                    refresh();
-                }
-                else {
-                    var params = BasicFormDialog.ask(getWindow(), modifyCircleFields(c));
-                    if (params == null) return;
-
-                    int x = (Integer) params.get("x");
-                    int y = (Integer) params.get("y");
-                    int radius = (Integer) params.get("radius");
-                    Color border = (Color) params.get("border");
-                    Color fill   = (Color) params.get("fill");
-
-                    Shape modified = new Circle(new Point(x, y), radius, border, fill);
-                    model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified, "Modified Circle at (" + x + ", " + y + ") r=" + radius));
-                    refresh();
-                }
+                var params = BasicFormDialog.ask(getWindow(), modifyCircleFields(c));
+                if (params == null) return;
+                int x      = (Integer) params.get("x");
+                int y      = (Integer) params.get("y");
+                int radius = (Integer) params.get("radius");
+                Color border = (Color) params.get("border");
+                Color fill   = (Color) params.get("fill");
+                Shape modified = new Circle(new Point(x, y), radius, border, fill);
+                model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
+                        "Modified Circle at (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                refresh();
             }
         }
     }
@@ -204,7 +196,8 @@ public class DrawingController {
             if (params == null) return;
             Color pointColor = (Color) params.get("border");
             shape = new Point(e.getX(), e.getY(), pointColor);
-            model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Point at (" + e.getX() + ", " + e.getY() + ")"));
+            model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                    "Added Point at (" + e.getX() + ", " + e.getY() + ") color=" + colorToString(pointColor)));
             refresh();
             return;
         }
@@ -218,7 +211,8 @@ public class DrawingController {
                 if (params == null) return;
                 Color lineColor = (Color) params.get("border");
                 shape = new Line(pendingShapeStart, new Point(e.getX(), e.getY()), lineColor);
-                model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Line from (" + pendingShapeStart.getX() + ", " + pendingShapeStart.getY() + ") to (" + e.getX() + ", " + e.getY() + ")"));
+                model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                        "Added Line from (" + pendingShapeStart.getX() + ", " + pendingShapeStart.getY() + ") to (" + e.getX() + ", " + e.getY() + ") color=" + colorToString(lineColor)));
                 pendingShapeStart = null;
                 refresh();
             }
@@ -233,7 +227,8 @@ public class DrawingController {
             Color border = (Color) params.get("border");
             Color fill   = (Color) params.get("fill");
             shape = new Rectangle(new Point(e.getX(), e.getY()), height, width, border, fill);
-            model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Rectangle at (" + e.getX() + ", " + e.getY() + ") w=" + width + " h=" + height));
+            model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                    "Added Rectangle at (" + e.getX() + ", " + e.getY() + ") w=" + width + " h=" + height + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
             refresh();
             return;
         }
@@ -245,7 +240,8 @@ public class DrawingController {
             Color border = (Color) params.get("border");
             Color fill = (Color) params.get("fill");
             shape = new Circle(new Point(e.getX(), e.getY()), radius, border, fill);
-            model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Circle at (" + e.getX() + ", " + e.getY() + ") r=" + radius));
+            model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                    "Added Circle at (" + e.getX() + ", " + e.getY() + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
             refresh();
             return;
         }
@@ -258,7 +254,8 @@ public class DrawingController {
             Color border = (Color) params.get("border");
             Color fill = (Color) params.get("fill");
             shape = new Donut(new Point(e.getX(), e.getY()), outer, inner, border, fill);
-            model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Donut at (" + e.getX() + ", " + e.getY() + ") inner=" + inner + " outer=" + outer));
+            model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                    "Added Donut at (" + e.getX() + ", " + e.getY() + ") inner=" + inner + " outer=" + outer + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
             refresh();
             return;
         }
@@ -270,7 +267,8 @@ public class DrawingController {
             Color border = (Color) params.get("border");
             Color fill   = (Color) params.get("fill");
             shape = new HexagonAdapter(e.getX(), e.getY(), radius, border, fill);
-            model.executeCommand(new AddShapeCommand(getShapes(), shape, "Added Hexagon at (" + e.getX() + ", " + e.getY() + ") r=" + radius));
+            model.executeCommand(new AddShapeCommand(getShapes(), shape,
+                    "Added Hexagon at (" + e.getX() + ", " + e.getY() + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
             refresh();
             return;
         }
@@ -306,10 +304,17 @@ public class DrawingController {
                 );
                 return;
             }
-            model.executeCommand(new RemoveShapeCommand(getShapes(), selected, "Deleted " + selected.getClass().getSimpleName() + " at (" + e.getX() + ", " + e.getY() + ")"));
+            model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                    "Deleted " + selected.getClass().getSimpleName() + " border=" + colorToString(selected.getColor()) + (selected instanceof SurfaceShape ss ? " fill=" + colorToString(ss.getInnerColor()) : "")));
             refresh();
         }
     }
+
+    private String colorToString(Color c) {
+        if (c == null) return "none";
+        return "rgb(" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + ")";
+    }
+
     public void undo() {
         model.undo();
         refresh();

@@ -1,8 +1,12 @@
 package app.geometry;
 
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class Point extends Shape {
+public class Point extends Shape implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3L;
 
     public void setX(int x) {
         this.x = x;

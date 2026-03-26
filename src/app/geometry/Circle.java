@@ -3,8 +3,12 @@ package app.geometry;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class Circle extends SurfaceShape {
+public class Circle extends SurfaceShape implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 6L;
 
     private final Point center;
     private final int radius;
@@ -33,7 +37,6 @@ public class Circle extends SurfaceShape {
             return center.distanceTo(p) <= radius + 2;
         }
     }
-
 
     @Override
     public void fill(Graphics2D g) {

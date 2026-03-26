@@ -2,8 +2,12 @@ package app.geometry;
 
 import hexagon.Hexagon;
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class HexagonAdapter extends SurfaceShape {
+public class HexagonAdapter extends SurfaceShape implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 8L;
 
     private final Hexagon hexagon;
 
