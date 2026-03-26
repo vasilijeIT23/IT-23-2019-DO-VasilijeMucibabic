@@ -11,6 +11,8 @@ import app.geometry.Point;
 import app.geometry.Rectangle;
 import app.geometry.Shape;
 import app.model.DrawingModel;
+import app.strategy.SaveLogStrategy;
+import app.strategy.SaveStrategy;
 import app.view.DrawingView;
 
 import javax.swing.*;
@@ -33,6 +35,16 @@ public class DrawingController {
         this.model = model;
         this.view = view;
         view.setController(this);
+    }
+
+    private SaveStrategy saveStrategy = new SaveLogStrategy(); // default
+
+    public void setSaveStrategy(SaveStrategy strategy) {
+        this.saveStrategy = strategy;
+    }
+
+    public void save() {
+        saveStrategy.save(model.getAllCommands());
     }
 
     public List<Shape> getShapesCopy() {
