@@ -42,6 +42,7 @@ public class DrawingModel {
 
     public void addShape(Shape s) { shapes.add(s); }
     public void removeShape(Shape s) { shapes.remove(s); }
+    public void emptyList() { shapes.clear(); }
     public List<Shape> getShapes() { return shapes; }
 
     public List<Shape> getShapesCopy() {
@@ -56,6 +57,7 @@ public class DrawingModel {
     public void addCommand(Command c) {
         allCommands.add(c);
     }
+    public void clearLog() { allCommands.clear(); }
 
     public List<Command> getAllCommands() {
         return allCommands;

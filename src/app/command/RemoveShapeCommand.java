@@ -30,6 +30,6 @@ public class RemoveShapeCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "";
+        return description;
     }
 }

@@ -43,6 +43,14 @@ public class Line extends Shape implements Serializable {
     }
 
     @Override
+    public boolean same(Shape shape) {
+        if (shape instanceof Line check) {
+            return a == check.getA() && check.getB() == b && this.getColor().equals(check.getColor());
+        }
+        return false;
+    }
+
+    @Override
     public void draw(Graphics2D g) {
         g.setColor(getColor());
         g.drawLine(a.getX(), a.getY(), b.getX(), b.getY());

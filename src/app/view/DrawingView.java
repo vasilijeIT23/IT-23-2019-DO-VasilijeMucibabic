@@ -2,6 +2,7 @@ package app.view;
 
 import app.controller.DrawingController;
 import app.drawing.enums.Modes;
+import app.strategy.LoadLogStrategy;
 import app.strategy.SaveDrawingStrategy;
 import app.strategy.SaveLogStrategy;
 
@@ -52,6 +53,7 @@ public class DrawingView extends JPanel {
         JToggleButton btnSelect = new JToggleButton("Select");
         JButton btnSaveLog = new JButton("Save Log");
         JButton btnSaveDrawing = new JButton("Save Drawing");
+        JButton btnLoadLog = new JButton("Load Log");
 
         ButtonGroup group = new ButtonGroup();
         group.add(btnPoint);
@@ -88,6 +90,12 @@ public class DrawingView extends JPanel {
             controller.save();
         });
 
+        btnLoadLog.addActionListener(e -> {
+            controller.setLoadStrategy(new LoadLogStrategy(controller.getShapes()));
+            controller.loadLog(canvas);
+        });
+
+
         toolBar.add(new JLabel("Tool: "));
         toolBar.add(btnPoint);
         toolBar.addSeparator(new Dimension(18, 0));
@@ -115,6 +123,9 @@ public class DrawingView extends JPanel {
         toolBar.add(btnSaveLog);
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnSaveDrawing);
+
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnLoadLog);
         btnUndo.setEnabled(false);
         btnRedo.setEnabled(false);
 

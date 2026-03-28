@@ -1,9 +1,6 @@
 package app.controller;
 
-import app.command.AddShapeCommand;
-import app.command.Command;
-import app.command.ModifyShapeCommand;
-import app.command.RemoveShapeCommand;
+import app.command.*;
 import app.drawing.components.BasicFormDialog;
 import app.drawing.enums.Modes;
 import app.geometry.*;
@@ -11,14 +8,19 @@ import app.geometry.Point;
 import app.geometry.Rectangle;
 import app.geometry.Shape;
 import app.model.DrawingModel;
+import app.strategy.LoadLogStrategy;
+import app.strategy.LoadStrategy;
 import app.strategy.SaveLogStrategy;
 import app.strategy.SaveStrategy;
 import app.view.DrawingView;
+import app.view.LogReplayView;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static app.drawing.components.FormLibrary.*;
 import static app.drawing.components.FormLibrary.CREATE_CIRCLE_FIELDS;
@@ -41,6 +43,12 @@ public class DrawingController {
 
     public void setSaveStrategy(SaveStrategy strategy) {
         this.saveStrategy = strategy;
+    }
+
+    private LoadStrategy loadStrategy = null; // default
+
+    public void setLoadStrategy(LoadStrategy strategy) {
+        this.loadStrategy = strategy;
     }
 
     public void save() {
@@ -115,7 +123,7 @@ public class DrawingController {
                 Color border = (Color) params.get("border");
                 Shape modified = new Point(x, y, border);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Point to (" + x + ", " + y + ") color=" + colorToString(border)));
+                        "Modified Point from (" + p.getX() + ", " + p.getY() + ") to (" + x + ", " + y + ") color=" + colorToString(border)));
                 refresh();
             }
             else if (selected instanceof Line l) {
@@ -128,7 +136,7 @@ public class DrawingController {
                 Color border = (Color) params.get("border");
                 Shape modified = new Line(new Point(x, y), new Point(x2, y2), border);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Line from (" + x + ", " + y + ") to (" + x2 + ", " + y2 + ") color=" + colorToString(border)));
+                        "Modified Line from (" + l.getA().getX() + ", " + l.getA().getY() + ")-(" + l.getB().getX() + ", " + l.getB().getY() + ") to (" + x + ", " + y + ")-(" + x2 + ", " + y2 + ") color=" + colorToString(border)));
                 refresh();
             }
             else if (selected instanceof Rectangle r) {
@@ -142,7 +150,8 @@ public class DrawingController {
                 Color fill   = (Color) params.get("fill");
                 Shape modified = new Rectangle(new Point(x, y), height, width, border, fill);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Rectangle at (" + x + ", " + y + ") w=" + width + " h=" + height + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                        "Modified Rectangle from (" + r.getUpperLeftPoint().getX() + ", " + r.getUpperLeftPoint().getY() + ") w=" + r.getWidth() + " h=" + r.getHeight() +
+                                " to (" + x + ", " + y + ") w=" + width + " h=" + height + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
             else if (selected instanceof HexagonAdapter h) {
@@ -155,7 +164,8 @@ public class DrawingController {
                 Color fill   = (Color) params.get("fill");
                 Shape modified = new HexagonAdapter(x, y, radius, border, fill);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Hexagon at (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                        "Modified Hexagon from (" + h.getX() + ", " + h.getY() + ") r=" + h.getRadius() +
+                                " to (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
             else if (selected instanceof Donut d) {
@@ -169,7 +179,8 @@ public class DrawingController {
                 Color fill   = (Color) params.get("fill");
                 Shape modified = new Donut(new Point(x, y), outer, inner, border, fill);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Donut at (" + x + ", " + y + ") inner=" + inner + " outer=" + outer + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                        "Modified Donut from (" + d.getCenter().getX() + ", " + d.getCenter().getY() + ") inner=" + d.getInnerRadius() + " outer=" + d.getRadius() +
+                                " to (" + x + ", " + y + ") inner=" + inner + " outer=" + outer + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
             else if (selected instanceof Circle c) {
@@ -182,7 +193,8 @@ public class DrawingController {
                 Color fill   = (Color) params.get("fill");
                 Shape modified = new Circle(new Point(x, y), radius, border, fill);
                 model.executeCommand(new ModifyShapeCommand(getShapes(), selected, modified,
-                        "Modified Circle at (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
+                        "Modified Circle from (" + c.getCenter().getX() + ", " + c.getCenter().getY() + ") r=" + c.getRadius() +
+                                " to (" + x + ", " + y + ") r=" + radius + " border=" + colorToString(border) + " fill=" + colorToString(fill)));
                 refresh();
             }
         }
@@ -304,10 +316,65 @@ public class DrawingController {
                 );
                 return;
             }
-            model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                    "Deleted " + selected.getClass().getSimpleName() + " border=" + colorToString(selected.getColor()) + (selected instanceof SurfaceShape ss ? " fill=" + colorToString(ss.getInnerColor()) : "")));
-            refresh();
+            if (selected instanceof Point p) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Point at (" + p.getX() + ", " + p.getY() + ")"));
+                refresh();
+            }
+            else if (selected instanceof Line l) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Line from (" + l.getA().getX() + ", " + l.getA().getY() + ")-(" + l.getB().getX() + ", " + l.getB().getY() + ")"));
+                refresh();
+            }
+            else if (selected instanceof Rectangle r) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Rectangle from (" + r.getUpperLeftPoint().getX() + ", " + r.getUpperLeftPoint().getY() + ") w=" + r.getWidth() + " h=" + r.getHeight()));
+                refresh();
+            }
+            else if (selected instanceof HexagonAdapter h) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Hexagon from (" + h.getX() + ", " + h.getY() + ") r=" + h.getRadius()));
+                refresh();
+            }
+            else if (selected instanceof Donut d) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Donut from (" + d.getCenter().getX() + ", " + d.getCenter().getY() + ") inner=" + d.getInnerRadius() + " outer=" + d.getRadius()));
+                refresh();
+            }
+            else if (selected instanceof Circle c) {
+                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
+                        "Deleted Circle from (" + c.getCenter().getX() + ", " + c.getCenter().getY() + ") r=" + c.getRadius()));
+                refresh();
+            }
         }
+    }
+
+    public void handleLogLoad(String mode, Shape shape, String message) {
+        if (Objects.equals(mode, "D")) {
+            Shape selected = null;
+            for (int i = model.getSize() - 1; i >= 0; i--) {
+                Shape s = model.getShape(i);
+                if (s.same(shape)) {
+                    selected = s;
+                }
+            }
+            model.executeCommand(new RemoveShapeCommand(getShapes(), selected, message));
+        }
+        else {
+            model.executeCommand(new AddShapeCommand(getShapes(), shape, message));
+        }
+        refresh();
+    }
+    
+    public void handleLogLoad(Shape shape, Shape newValues, String message) {
+        Shape selected = null;
+        for (int i = model.getSize() - 1; i >= 0; i--) {
+            Shape s = model.getShape(i);
+            if (s.same(shape)) {
+                selected = s;
+            }
+        }
+        model.executeCommand(new ModifyShapeCommand(getShapes(), selected, newValues, message));
     }
 
     private String colorToString(Color c) {
@@ -342,5 +409,18 @@ public class DrawingController {
 
     public boolean canRedo() {
         return model.canRedo();
+    }
+
+    public void loadLog(JPanel canvas) {
+        model.emptyList();
+        model.clearLog();
+        refresh();
+        List<String> lines = loadStrategy.load(canvas);
+        if (lines == null) return;
+
+        LogReplayView replayView = new LogReplayView(canvas, model.getShapes());
+        replayView.setController(this); // pass controller
+        replayView.replay(lines);
+        refresh();
     }
 }

@@ -52,8 +52,8 @@ public final class FormLibrary {
             List.of(
                     new FieldSpecs("width", "Width:", FieldTypes.INT, 50, 1, 2000, true),
                     new FieldSpecs("height", "Height:", FieldTypes.INT, 50, 1, 2000, true),
-                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, NO_COLOR, null, null, false),
-                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, NO_COLOR, null, null, false)
+                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, Color.WHITE, null, null, false),
+                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, Color.WHITE, null, null, false)
             )
     );
 
@@ -75,8 +75,8 @@ public final class FormLibrary {
             "Circle properties",
             List.of(
                     new FieldSpecs("radius", "Radius:", FieldTypes.INT, 50, 1, 2000, true),
-                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, NO_COLOR, null, null, false),
-                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, NO_COLOR, null, null, false)
+                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, Color.WHITE, null, null, false),
+                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, Color.WHITE, null, null, false)
             )
     );
 
@@ -98,8 +98,8 @@ public final class FormLibrary {
             List.of(
                     new FieldSpecs("outer", "Outer radius:", FieldTypes.INT, 50, 1, 2000, true),
                     new FieldSpecs("inner", "Inner radius:", FieldTypes.INT, 20, 1, 2000, true),
-                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, NO_COLOR, null, null, false),
-                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, NO_COLOR, null, null, false)
+                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, Color.WHITE, null, null, false),
+                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, Color.WHITE, null, null, false)
             ),
             values -> {
                 int outer = (Integer) values.get("outer");
@@ -131,8 +131,8 @@ public final class FormLibrary {
             "Hexagon properties",
             List.of(
                     new FieldSpecs("radius", "Radius:", FieldTypes.INT, 50, 1, 2000, true),
-                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, NO_COLOR, null, null, false),
-                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, NO_COLOR, null, null, false)
+                    new FieldSpecs("border", "Border color", FieldTypes.COLOR, Color.WHITE, null, null, false),
+                    new FieldSpecs("fill", "Inner color", FieldTypes.COLOR, Color.WHITE, null, null, false)
             )
     );
 

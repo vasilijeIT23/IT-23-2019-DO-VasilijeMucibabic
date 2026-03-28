@@ -47,6 +47,15 @@ public class Rectangle extends SurfaceShape implements Serializable {
     }
 
     @Override
+    public boolean same(Shape shape) {
+        if (shape instanceof Rectangle check) {
+            return upperLeftPoint == check.upperLeftPoint && check.height == height && check.width == width
+                    && this.getColor().equals(check.getColor()) && this.getInnerColor().equals(check.getInnerColor());
+        }
+        return false;
+    }
+
+    @Override
     public void fill(Graphics2D g) {
         g.setColor(getInnerColor());
         g.fillRect(this.upperLeftPoint.getX() + 1, this.upperLeftPoint.getY() + 1,

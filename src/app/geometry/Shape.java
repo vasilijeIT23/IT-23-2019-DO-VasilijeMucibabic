@@ -14,6 +14,8 @@ public abstract class Shape implements Serializable {
         return selected;
     }
 
+    public abstract boolean same(Shape shape);
+
     public void setSelected(boolean selected) {
         this.selected = selected;
     }

@@ -61,11 +61,22 @@ public class HexagonAdapter extends SurfaceShape implements Serializable {
     }
 
     @Override
+    public boolean same(Shape shape) {
+        if (shape instanceof HexagonAdapter check) {
+            return this.getX() == check.getX() && this.getY() == check.getY() && check.getRadius() == this.getRadius()
+                    && this.getColor().equals(check.getColor()) && this.getInnerColor().equals(check.getInnerColor());
+        }
+        return false;
+    }
+
+    @Override
     public Shape copy() {
         return null;
     }
 
-    public int getX()      { return hexagon.getX(); }
-    public int getY()      { return hexagon.getY(); }
+    public int getX() { return hexagon.getX(); }
+    public int getY() { return hexagon.getY(); }
     public int getRadius() { return hexagon.getR(); }
+    public Color getColor() { return hexagon.getBorderColor(); }
+    public Color getInnerColor() { return hexagon.getAreaColor(); }
 }

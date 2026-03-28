@@ -37,6 +37,14 @@ public class Circle extends SurfaceShape implements Serializable {
             return center.distanceTo(p) <= radius + 2;
         }
     }
+    @Override
+    public boolean same(Shape shape) {
+        if (shape instanceof Circle check) {
+            return this.center == check.getCenter() && check.getRadius() == this.radius &&
+                    this.getColor().equals(check.getColor()) && this.getInnerColor().equals(check.getInnerColor());
+        }
+        return false;
+    }
 
     @Override
     public void fill(Graphics2D g) {

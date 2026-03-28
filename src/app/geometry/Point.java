@@ -45,6 +45,14 @@ public class Point extends Shape implements Serializable {
     }
 
     @Override
+    public boolean same(Shape shape) {
+        if (shape instanceof Point check) {
+            return x == check.getX() && check.getY() == y && this.getColor().equals(check.getColor());
+        }
+        return false;
+    }
+
+    @Override
     public void draw(Graphics2D g) {
         g.setColor(getColor());
         g.fillOval(x - 2, y - 2, 5, 5);
