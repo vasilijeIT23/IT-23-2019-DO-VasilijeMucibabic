@@ -8,6 +8,7 @@ import app.geometry.Point;
 import app.geometry.Rectangle;
 import app.geometry.Shape;
 import app.model.DrawingModel;
+import app.observer.SelectionObserver;
 import app.strategy.LoadLogStrategy;
 import app.strategy.LoadStrategy;
 import app.strategy.SaveLogStrategy;
@@ -38,6 +39,10 @@ public class DrawingController {
         this.model = model;
         this.view = view;
         view.setController(this);
+    }
+
+    public void addSelectionObserver(SelectionObserver observer) {
+        model.addSelectionObserver(observer);
     }
 
     private SaveStrategy saveStrategy = new SaveLogStrategy(); // default
@@ -78,7 +83,9 @@ public class DrawingController {
 
         if (mode != Modes.MODIFY && mode != Modes.DELETE) {
             model.getShapes().forEach(s -> s.setSelected(false));
+            model.notifySelectionChanged();
         }
+
 
         view.repaint();
     }
@@ -296,6 +303,7 @@ public class DrawingController {
                     break;
                 }
             }
+            model.notifySelectionChanged();
             view.repaint();
         }
     }

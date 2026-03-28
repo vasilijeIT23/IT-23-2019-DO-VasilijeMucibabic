@@ -4,6 +4,7 @@ import app.command.Command;
 import app.command.RedoCommand;
 import app.command.UndoCommand;
 import app.geometry.Shape;
+import app.observer.SelectionObserver;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -16,7 +17,16 @@ public class DrawingModel {
     private final Deque<Command> redoStack = new ArrayDeque<>();
     private final List<Command> allCommands = new ArrayList<>();
     private final List<Shape> selectedShapes = new ArrayList<>();
-    private Shape selected = null;
+    private final List<SelectionObserver> selectionObservers = new ArrayList<>();
+
+    public void addSelectionObserver(SelectionObserver observer) {
+        selectionObservers.add(observer);
+    }
+
+    public void notifySelectionChanged() {
+        long count = shapes.stream().filter(Shape::isSelected).count();
+        selectionObservers.forEach(o -> o.onSelectionChanged((int) count));
+    }
 
     public void executeCommand(Command cmd) {
         cmd.execute();

@@ -16,15 +16,24 @@ public class DrawingView extends JPanel {
 
     private final JButton btnUndo = new JButton("Undo");
     private final JButton btnRedo = new JButton("Redo");
+    private final JToggleButton btnModify = new JToggleButton("Modify");
+    private final JToggleButton btnDelete = new JToggleButton("Delete");
 
     public void setController(DrawingController controller) {
         this.controller = controller;
         canvas.setController(controller); // propagate to canvas
+
+        controller.addSelectionObserver(count -> {
+            btnDelete.setEnabled(count > 0);
+            btnModify.setEnabled(count == 1);
+        });
     }
     private final JLabel lblStatus = new JLabel(" ");
     private final LogPanel logPanel = new LogPanel();
 
     public DrawingView() {
+        btnDelete.setEnabled(false);
+        btnModify.setEnabled(false);
 
         canvas = new PnlDrawing();
         setLayout(new BorderLayout(10, 10));
@@ -49,8 +58,7 @@ public class DrawingView extends JPanel {
         JToggleButton btnCircle = new JToggleButton("Circle");
         JToggleButton btnDonut = new JToggleButton("Donut");
         JToggleButton btnHexagon = new JToggleButton("Hexagon");
-        JToggleButton btnModify = new JToggleButton("Modify");
-        JToggleButton btnDelete = new JToggleButton("Delete");
+
         JToggleButton btnSelect = new JToggleButton("Select");
         JButton btnSaveLog = new JButton("Save Log");
         JButton btnSaveDrawing = new JButton("Save Drawing");
