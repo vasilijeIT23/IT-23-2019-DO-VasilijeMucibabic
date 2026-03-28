@@ -71,7 +71,13 @@ public class HexagonAdapter extends SurfaceShape implements Serializable {
 
     @Override
     public Shape copy() {
-        return null;
+        return new HexagonAdapter(
+                hexagon.getX(),
+                hexagon.getY(),
+                hexagon.getR(),
+                hexagon.getBorderColor(),
+                hexagon.getAreaColor()
+        );
     }
 
     public int getX() { return hexagon.getX(); }
