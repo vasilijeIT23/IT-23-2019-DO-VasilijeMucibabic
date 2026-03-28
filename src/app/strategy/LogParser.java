@@ -255,6 +255,11 @@ public class LogParser {
         return null;
     }
 
+    public static Shape findFromZAxisLine(String line, List<Shape> shapes) {
+        String shapePart = line.substring(line.indexOf(": ") + 2);
+        return delete("Deleted" + shapePart.substring(shapePart.indexOf(" ")), shapes);
+    }
+
     // ===== Extractors =====
 
     private static int extractInt(String line, String after, String before) {

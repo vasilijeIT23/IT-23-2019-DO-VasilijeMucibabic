@@ -63,6 +63,18 @@ public class LogReplayView {
             } else if (line.startsWith("Added")) {
                 Shape shape = LogParser.add(line);
                 controller.handleLogLoad("A", shape, line);
+            } else if (line.startsWith("To Front:")) {
+                Shape shape = LogParser.findFromZAxisLine(line, shapes);
+                if (shape != null) controller.toFront(shape);
+            } else if (line.startsWith("To Back:")) {
+                Shape shape = LogParser.findFromZAxisLine(line, shapes);
+                if (shape != null) controller.toBack(shape);
+            } else if (line.startsWith("Bring To Front:")) {
+                Shape shape = LogParser.findFromZAxisLine(line, shapes);
+                if (shape != null) controller.bringToFront(shape);
+            } else if (line.startsWith("Bring To Back:")) {
+                Shape shape = LogParser.findFromZAxisLine(line, shapes);
+                if (shape != null) controller.bringToBack(shape);
             } else if (line.startsWith("Undo")) {
                 controller.undo();
             } else {
