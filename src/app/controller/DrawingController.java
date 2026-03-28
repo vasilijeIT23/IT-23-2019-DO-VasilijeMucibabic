@@ -411,15 +411,16 @@ public class DrawingController {
         return model.canRedo();
     }
 
-    public void loadLog(JPanel canvas) {
+    public void load(JPanel canvas) {
         model.emptyList();
         model.clearLog();
         refresh();
         List<String> lines = loadStrategy.load(canvas);
+        refresh();
         if (lines == null) return;
 
         LogReplayView replayView = new LogReplayView(canvas, model.getShapes());
-        replayView.setController(this); // pass controller
+        replayView.setController(this);
         replayView.replay(lines);
         refresh();
     }
