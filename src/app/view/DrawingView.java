@@ -56,6 +56,10 @@ public class DrawingView extends JPanel {
         JButton btnSaveDrawing = new JButton("Save Drawing");
         JButton btnLoadLog = new JButton("Load Log");
         JButton btnLoadDrawing = new JButton("Load Drawing");
+        JButton btnToFront = new JButton("↑");
+        JButton btnToBack = new JButton("↓");
+        JButton btnBringToFront = new JButton("⇈");
+        JButton btnBringToBack  = new JButton("⇊");
 
         ButtonGroup group = new ButtonGroup();
         group.add(btnPoint);
@@ -102,6 +106,11 @@ public class DrawingView extends JPanel {
             controller.load(canvas); // reuses same load flow
         });
 
+        btnToFront.addActionListener(e -> controller.toFront());
+        btnToBack.addActionListener(e -> controller.toBack());
+        btnBringToFront.addActionListener(e -> controller.bringToFront());
+        btnBringToBack.addActionListener(e -> controller.bringToBack());
+
         toolBar.add(new JLabel("Tool: "));
         toolBar.add(btnPoint);
         toolBar.addSeparator(new Dimension(18, 0));
@@ -134,6 +143,15 @@ public class DrawingView extends JPanel {
 
         toolBar.addSeparator(new Dimension(18, 0));
         toolBar.add(btnLoadLog);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnToFront);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnToBack);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnBringToFront);
+        toolBar.addSeparator(new Dimension(18, 0));
+        toolBar.add(btnBringToBack);
+
         btnUndo.setEnabled(false);
         btnRedo.setEnabled(false);
 

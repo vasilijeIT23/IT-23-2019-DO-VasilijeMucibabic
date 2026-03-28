@@ -15,6 +15,8 @@ public class DrawingModel {
     private final Deque<Command> history = new ArrayDeque<>();
     private final Deque<Command> redoStack = new ArrayDeque<>();
     private final List<Command> allCommands = new ArrayList<>();
+    private final List<Shape> selectedShapes = new ArrayList<>();
+    private Shape selected = null;
 
     public void executeCommand(Command cmd) {
         cmd.execute();
@@ -38,6 +40,16 @@ public class DrawingModel {
             history.push(cmd);
             allCommands.add(new RedoCommand(cmd));
         }
+    }
+
+    public void addSelected(Shape s) { selectedShapes.add(s); }
+    public boolean hasOne(Shape s) { return selectedShapes.size() == 1; }
+
+    public Shape getSelectedShape() {
+        return shapes.stream()
+                .filter(Shape::isSelected)
+                .findFirst()
+                .orElse(null);
     }
 
     public void addShape(Shape s) { shapes.add(s); }

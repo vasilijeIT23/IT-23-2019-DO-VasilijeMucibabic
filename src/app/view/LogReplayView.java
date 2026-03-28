@@ -6,6 +6,7 @@ import app.strategy.LogParser;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LogReplayView {
@@ -42,8 +43,23 @@ public class LogReplayView {
                 ArrayList<Shape> applied = LogParser.modify(line, shapes);
                 controller.handleLogLoad(applied.get(0), applied.get(1), line);
             } else if (line.startsWith("Deleted")) {
-                Shape shape = LogParser.delete(line, shapes);
-                controller.handleLogLoad("D", shape, line);
+                if (line.indexOf("Deleted") != line.lastIndexOf("Deleted")) {
+                    System.out.println(line);
+                    ArrayList<Shape> toDelete = new ArrayList<>();
+                    String[] parts = line.split("Deleted");
+                    System.out.println(Arrays.toString(parts));
+                    for (String part : parts) {
+                        if (part.isBlank()) continue;
+                        System.out.println("Deleted" + part);
+                        toDelete.add(LogParser.delete("Deleted" + part, shapes));
+                        System.out.println("Deleted" + part);
+                    }
+                    controller.handleLogLoad(toDelete, line);
+                }
+                else {
+                    Shape shape = LogParser.delete(line, shapes);
+                    controller.handleLogLoad("D", shape, line);
+                }
             } else if (line.startsWith("Added")) {
                 Shape shape = LogParser.add(line);
                 controller.handleLogLoad("A", shape, line);

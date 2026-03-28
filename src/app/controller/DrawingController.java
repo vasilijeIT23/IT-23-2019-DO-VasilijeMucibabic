@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static app.drawing.components.FormLibrary.*;
 import static app.drawing.components.FormLibrary.CREATE_CIRCLE_FIELDS;
@@ -93,18 +94,15 @@ public class DrawingController {
         if (mode == Modes.MODIFY) {
             handleModify();
         }
+
+        if (mode == Modes.DELETE) {
+            handleDelete();
+        }
     }
 
     public void handleModify() {
         if (mode == Modes.MODIFY) {
-            Shape selected = null;
-
-            for (int i = model.getSize() - 1; i >= 0; i--) {
-                Shape s = model.getShape(i);
-                if (s.isSelected()) {
-                    selected = s;
-                }
-            }
+            Shape selected = model.getSelectedShape();
             if (selected == null) {
                 JOptionPane.showMessageDialog(
                         SwingUtilities.getWindowAncestor(view),
@@ -286,66 +284,56 @@ public class DrawingController {
         }
 
         if (mode == Modes.SELECT) {
-            model.getShapes().forEach(s -> s.setSelected(false));
+            //model.getShapes().forEach(s -> s.setSelected(false));
             for (int i = model.getSize() - 1; i >= 0; i--) {
                 Shape s = model.getShape(i);
                 if (s.contains(new Point(e.getX(), e.getY()))) {
+                    if (s.isSelected()) {
+                        s.setSelected(false);
+                        break;
+                    }
                     s.setSelected(true);
                     break;
                 }
             }
             view.repaint();
-            return;
         }
+    }
 
+    public void handleDelete() {
         if (mode == Modes.DELETE) {
-            Shape selected = null;
-            for (int i = model.getSize() - 1; i >= 0; i--) {
-                Shape s = model.getShape(i);
-                if (s.contains(new Point(e.getX(), e.getY())) && s.isSelected()) {
-                    selected = s;
-                    break;
-                }
-            }
-            if (selected == null) {
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(view),
-                        "No shape selected. Select a shape first.",
-                        "Nothing to delete",
-                        JOptionPane.WARNING_MESSAGE
-                );
+            List<Shape> selected = model.getShapes().stream()
+                    .filter(Shape::isSelected)
+                    .toList();
+
+            if (selected.isEmpty()) {
+                showNoSelectionWarning();
                 return;
             }
-            if (selected instanceof Point p) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Point at (" + p.getX() + ", " + p.getY() + ")"));
-                refresh();
+
+            List<Command> commands = new ArrayList<>();
+            for (Shape shape : selected) {
+                
+                if (shape instanceof Point p) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape, deleteLogMessage(p)));
+                } else if (shape instanceof Line l) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape,deleteLogMessage(l)));
+                } else if (shape instanceof Rectangle r) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape,deleteLogMessage(r)));
+                } else if (shape instanceof HexagonAdapter h) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape,deleteLogMessage(h)));
+                } else if (shape instanceof Donut d) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape, deleteLogMessage(d)));
+                } else if (shape instanceof Circle c) {
+                    commands.add(new RemoveShapeCommand(getShapes(), shape, deleteLogMessage(c)));
+                }
             }
-            else if (selected instanceof Line l) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Line from (" + l.getA().getX() + ", " + l.getA().getY() + ")-(" + l.getB().getX() + ", " + l.getB().getY() + ")"));
-                refresh();
-            }
-            else if (selected instanceof Rectangle r) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Rectangle from (" + r.getUpperLeftPoint().getX() + ", " + r.getUpperLeftPoint().getY() + ") w=" + r.getWidth() + " h=" + r.getHeight()));
-                refresh();
-            }
-            else if (selected instanceof HexagonAdapter h) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Hexagon from (" + h.getX() + ", " + h.getY() + ") r=" + h.getRadius()));
-                refresh();
-            }
-            else if (selected instanceof Donut d) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Donut from (" + d.getCenter().getX() + ", " + d.getCenter().getY() + ") inner=" + d.getInnerRadius() + " outer=" + d.getRadius()));
-                refresh();
-            }
-            else if (selected instanceof Circle c) {
-                model.executeCommand(new RemoveShapeCommand(getShapes(), selected,
-                        "Deleted Circle from (" + c.getCenter().getX() + ", " + c.getCenter().getY() + ") r=" + c.getRadius()));
-                refresh();
-            }
+            String description = selected.stream()
+                    .map(this::deleteLogMessage)
+                    .collect(Collectors.joining(""));
+
+            model.executeCommand(new CompositeCommand(commands, description));
+            refresh();
         }
     }
 
@@ -375,6 +363,24 @@ public class DrawingController {
             }
         }
         model.executeCommand(new ModifyShapeCommand(getShapes(), selected, newValues, message));
+        refresh();
+    }
+
+    public void handleLogLoad(ArrayList<Shape> shapes, String message) {
+        List<Command> commands = new ArrayList<>();
+        for (Shape shape : shapes) {
+            Shape selected = null;
+            for (int i = model.getSize() - 1; i >= 0; i--) {
+                Shape s = model.getShape(i);
+                if (s.same(shape)) {
+                    selected = s;
+                }
+            }
+            commands.add(new RemoveShapeCommand(getShapes(), selected, message));
+        }
+
+        model.executeCommand(new CompositeCommand(commands, message));
+
     }
 
     private String colorToString(Color c) {
@@ -423,5 +429,58 @@ public class DrawingController {
         replayView.setController(this);
         replayView.replay(lines);
         refresh();
+    }
+
+    public void toFront() {
+        Shape selected = model.getSelectedShape();
+        if (selected == null) { showNoSelectionWarning(); return; }
+        model.executeCommand(new ZAxisOrderCommand(getShapes(), selected,
+                ZAxisOrderCommand.ZOperation.TO_FRONT, "To Front: " + selected.getClass().getSimpleName()));
+        refresh();
+    }
+
+    public void toBack() {
+        Shape selected = model.getSelectedShape();
+        if (selected == null) { showNoSelectionWarning(); return; }
+        model.executeCommand(new ZAxisOrderCommand(getShapes(), selected,
+                ZAxisOrderCommand.ZOperation.TO_BACK, "To Back: " + selected.getClass().getSimpleName()));
+        refresh();
+    }
+
+    public void bringToFront() {
+        Shape selected = model.getSelectedShape();
+        if (selected == null) { showNoSelectionWarning(); return; }
+        model.executeCommand(new ZAxisOrderCommand(getShapes(), selected,
+                ZAxisOrderCommand.ZOperation.BRING_TO_FRONT, "Bring To Front: " + selected.getClass().getSimpleName()));
+        refresh();
+    }
+
+    public void bringToBack() {
+        Shape selected = model.getSelectedShape();
+        if (selected == null) { showNoSelectionWarning(); return; }
+        model.executeCommand(new ZAxisOrderCommand(getShapes(), selected,
+                ZAxisOrderCommand.ZOperation.BRING_TO_BACK, "Bring To Back: " + selected.getClass().getSimpleName()));
+        refresh();
+    }
+
+    private void showNoSelectionWarning() {
+        JOptionPane.showMessageDialog(getWindow(), "No shape selected. Select a shape first.",
+                "Nothing selected", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private String deleteLogMessage(Shape shape) {
+        if (shape instanceof Point p)
+            return "Deleted Point at (" + p.getX() + ", " + p.getY() + ")";
+        if (shape instanceof Line l)
+            return "Deleted Line from (" + l.getA().getX() + ", " + l.getA().getY() + ")-(" + l.getB().getX() + ", " + l.getB().getY() + ")";
+        if (shape instanceof Donut d)
+            return "Deleted Donut at (" + d.getCenter().getX() + ", " + d.getCenter().getY() + ") inner=" + d.getInnerRadius() + " outer=" + d.getRadius() + " ";
+        if (shape instanceof Circle c)
+            return "Deleted Circle at (" + c.getCenter().getX() + ", " + c.getCenter().getY() + ") r=" + c.getRadius() + " ";
+        if (shape instanceof Rectangle r)
+            return "Deleted Rectangle at (" + r.getUpperLeftPoint().getX() + ", " + r.getUpperLeftPoint().getY() + ") w=" + r.getWidth() + " h=" + r.getHeight() + " ";
+        if (shape instanceof HexagonAdapter h)
+            return "Deleted Hexagon at (" + h.getX() + ", " + h.getY() + ") r=" + h.getRadius() + " ";
+        return "Deleted " + shape.getClass().getSimpleName();
     }
 }

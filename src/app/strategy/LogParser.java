@@ -161,60 +161,48 @@ public class LogParser {
 
     public static Shape delete(String line, List<Shape> shapes) {
         Shape original = null;
+
         if (line.startsWith("Deleted Point")) {
-            // Modified Point from (ox, oy) to (nx, ny) color=rgb()
-            int ox = extractInt(line, "from (", ",");
-            int oy = extractInt(line, "from (" + ox + ", ", ")");
-            Color color = extractColor(line, "color=");
-
+            int ox = extractInt(line, "at (", ",");
+            int oy = extractInt(line, "at (" + ox + ", ", ")");
             original = findPoint(shapes, ox, oy);
-
         }
         if (line.startsWith("Deleted Line")) {
-            // Modified Line from (ox1,oy1)-(ox2,oy2) to (nx1,ny1)-(nx2,ny2) color=rgb()
             int ox1 = extractInt(line, "from (", ",");
             int oy1 = extractInt(line, "from (" + ox1 + ", ", ")");
             int ox2 = extractInt(line, ")-(", ",");
             int oy2 = extractInt(line, ")-(" + ox2 + ", ", ")");
-            Color color = extractColor(line, "color=");
-
             original = findLine(shapes, ox1, oy1, ox2, oy2);
         }
         if (line.startsWith("Deleted Rectangle")) {
-            // Modified Rectangle from (ox, oy) w=OW h=OH to (nx, ny) w=NW h=NH border=rgb() fill=rgb()
-            int ox = extractInt(line, "from (", ",");
-            int oy = extractInt(line, "from (" + ox + ", ", ")");
+            int ox = extractInt(line, "at (", ",");
+            int oy = extractInt(line, "at (" + ox + ", ", ")");
             int ow = extractInt(line, "w=", " ");
             int oh = extractInt(line, "h=", " ");
-            Color border = extractColor(line, "border=");
-            Color fill   = extractColor(line, "fill=");
-
             original = findRectangle(shapes, ox, oy, ow, oh);
         }
         if (line.startsWith("Deleted Donut")) {
-            // Modified Donut from (ox, oy) inner=OI outer=OO to (nx, ny) inner=NI outer=NO border=rgb() fill=rgb()
-            int ox    = extractInt(line, "from (", ",");
-            int oy    = extractInt(line, "from (" + ox + ", ", ")");
+            int ox    = extractInt(line, "at (", ",");
+            int oy    = extractInt(line, "at (" + ox + ", ", ")");
             int oInner = extractInt(line, "inner=", " ");
             int oOuter = extractInt(line, "outer=", " ");
             original = findDonut(shapes, ox, oy, oInner, oOuter);
         }
         if (line.startsWith("Deleted Hexagon")) {
-            int ox = extractInt(line, "from (", ",");
-            int oy = extractInt(line, "from (" + ox + ", ", ")");
+            int ox  = extractInt(line, "at (", ",");
+            int oy  = extractInt(line, "at (" + ox + ", ", ")");
             int or_ = extractInt(line, "r=", " ");
-
             original = findHexagon(shapes, ox, oy, or_);
         }
         if (line.startsWith("Deleted Circle")) {
-            int ox = extractInt(line, "from (", ",");
-            int oy = extractInt(line, "from (" + ox + ", ", ")");
+            int ox  = extractInt(line, "at (", ",");
+            int oy  = extractInt(line, "at (" + ox + ", ", ")");
             int or_ = extractInt(line, "r=", " ");
             original = findCircle(shapes, ox, oy, or_);
         }
+
         return original;
     }
-
     // ===== Finders =====
 
     private static Shape findPoint(List<Shape> shapes, int x, int y) {
